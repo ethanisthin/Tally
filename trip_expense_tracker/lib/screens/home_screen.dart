@@ -8,8 +8,8 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('Trip Expense Tracker'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: const Center(
         child: Column(
@@ -22,7 +22,7 @@ class HomeScreen extends StatelessWidget {
             ),
             SizedBox(height: 20),
             Text(
-              'Welcome to Trip Expense Tracker',
+              'Welcome to Trip Expense Tracker!',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -30,24 +30,27 @@ class HomeScreen extends StatelessWidget {
             ),
             SizedBox(height: 10),
             Text(
-              'Create a group to start tracking expenses',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
+              'Ready to track your group expenses',
+              style: TextStyle(fontSize: 16),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const CreateGroupScreen()),
+            MaterialPageRoute(
+              builder: (context) => const CreateGroupScreen(),
+            ),
           );
+          
+          if (result == true) {
+            print('Group created successfully!');
+          }
         },
-        icon: const Icon(Icons.add),
-        label: const Text('Create Group'),
+        tooltip: 'Create Group',
+        child: const Icon(Icons.add),
       ),
     );
   }
