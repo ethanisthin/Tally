@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/group.dart';
-import '../services/local_storage_service.dart';
+import '../services/firebase_service.dart';
 
 class CreateGroupScreen extends StatefulWidget {
   const CreateGroupScreen({super.key});
@@ -15,7 +15,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
   final _locationController = TextEditingController();
   final _numberOfPeopleController = TextEditingController();
   bool _isLoading = false;
-  final _storageService = LocalStorageService();
+  final _firebaseService = FirebaseService();
 
   @override
   void dispose() {
@@ -38,11 +38,11 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
           location: _locationController.text.trim(),
           numberOfPeople: int.parse(_numberOfPeopleController.text),
           createdAt: DateTime.now(),
-          createdBy: 'current_user_id', // TODO: Replace with actual user ID
+          createdBy: 'current_user_id',
           members: [],
         );
 
-        final groupId = await _storageService.addGroup(group);
+        final groupId = await _firebaseService.addGroup(group);
         print('Group created with ID: $groupId, Name: ${group.name}');
         
         if (mounted) {
