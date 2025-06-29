@@ -1,16 +1,42 @@
-# trip_expense_tracker
+# AppTally
 
-A new Flutter project.
+AppTally is a powerful, cross-platform trip expense tracker designed to make group travel budgeting simple and transparent. Whether you’re traveling with friends, family, or colleagues, AppTally helps you log expenses, split costs, and settle up with ease.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- **Easy Expense Logging:** Quickly add and categorize expenses as you travel.
+- **Smart Splitting:** Divide costs fairly among participants, with support for custom splits.
+- **Multi-Platform:** Available on desktop and mobile—built with C++, Dart, and Swift for performance and clean UI.
+- **Summary & Reports:** Get clear breakdowns of who owes what, and export summaries to share with your group.
+- **Offline Support:** Record expenses anywhere, even without an internet connection.
+- **Privacy First:** All your trip data stays on your device unless you choose to share.
 
-A few resources to get you started if this is your first Flutter project:
+## Technologies Used
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **C++ / C:** Core logic and performance-sensitive modules.
+- **CMake:** Modern, modular build system.
+- **Dart:** Cross-platform UI and logic.
+- **Swift:** Native integration for Apple platforms.
+- **HTML:** For documentation and lightweight web views.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Quick Start
+
+Clone the repository and follow the platform-specific build instructions:
+
+```bash
+git clone https://github.com/ethanisthin/AppTally.git
+cd AppTally
+# See docs/README.md for build steps on your platform
+```
+
+## Contributing
+
+We love contributions! Check out [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
+
+## License
+
+AppTally is open source under the MIT License. See [LICENSE](LICENSE) for details.
+
+---
+
+Track your next adventure’s expenses with AppTally—and never argue over receipts again!
