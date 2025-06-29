@@ -1,6 +1,6 @@
-# AppTally
+# Tally
 
-AppTally is a powerful, cross-platform trip expense tracker designed to make group travel budgeting simple and transparent. Whether you’re traveling with friends, family, or colleagues, AppTally helps you log expenses, split costs, and settle up with ease.
+Tally is a powerful, cross-platform trip expense tracker designed to make group travel budgeting simple and transparent. Whether you’re traveling with friends, family, or colleagues, Tally helps you log expenses, split costs, and settle up with ease.
 
 ## Features
 
@@ -35,7 +35,7 @@ We love contributions! Check out [CONTRIBUTING.md](CONTRIBUTING.md) to get start
 
 ## License
 
-AppTally is open source under the MIT License. See [LICENSE](LICENSE) for details.
+Tally is open source under the MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
