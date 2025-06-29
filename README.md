@@ -39,4 +39,4 @@ Tally is open source under the MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
-Track your next adventure’s expenses with AppTally—and never argue over receipts again!
+Track your next adventure’s expenses with Tally—and never argue over receipts again!
