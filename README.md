@@ -1,6 +1,6 @@
-# AppTally
+# Tally
 
-AppTally (project name in code: `trip_expense_tracker`) is a cross-platform expense tracker built with Flutter. It enables users to easily keep track of expenses, with authentication and cloud sync backed by Firebase.
+Tally (project name in code: `trip_expense_tracker`) is a cross-platform expense tracker built with Flutter. It enables users to easily keep track of expenses, with authentication and cloud sync backed by Firebase.
 
 ## Features
 
@@ -72,4 +72,4 @@ Pull requests are welcome! Feel free to fork the repository and submit improveme
 
 ---
 
-> _AppTally is a private repository. To use, fork, or contribute, please request access from [@ethanisthin](https://github.com/ethanisthin)._
+> _Tally is a private repository. To use, fork, or contribute, please request access from [@ethanisthin](https://github.com/ethanisthin)._
