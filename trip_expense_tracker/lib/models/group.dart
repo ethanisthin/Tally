@@ -17,6 +17,26 @@ class Group {
     required this.members,
   });
 
+  Group copyWith({
+    String? name, 
+    String? location, 
+    int? numberOfPeople,
+    DateTime? createdAt,
+    String? createdBy,
+    List<String>? members,
+
+  }) {
+    return Group(
+      id: id,
+      name: name ?? this.name,
+      location: location ?? this.location, 
+      numberOfPeople: numberOfPeople ?? this.numberOfPeople,
+      createdAt: createdAt ?? this.createdAt,
+      createdBy: createdBy ?? this.createdBy,
+      members: members ?? this.members,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,
