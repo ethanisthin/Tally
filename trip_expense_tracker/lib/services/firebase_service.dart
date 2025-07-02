@@ -40,4 +40,15 @@ class FirebaseService {
       }).toList();
     });
   }
+
+  Future<void> updateGroup(Group group) async {
+    await FirebaseFirestore.instance
+          .collection('groups')
+          .doc(group.id)
+          .update({
+            'name':group.name,
+            'location':group.location,
+            'numberOfPeople':group.numberOfPeople,
+          });
+  }
 }
