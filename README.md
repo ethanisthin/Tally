@@ -6,7 +6,7 @@ Tally is a powerful, cross-platform trip expense tracker designed to make group 
 
 - **Easy Expense Logging:** Quickly add and categorize expenses as you travel.
 - **Smart Splitting:** Divide costs fairly among participants, with support for custom splits.
-- **Multi-Platform:** Available on desktop and mobile—built with C++, Dart, and Swift for performance and clean UI.
+- **Multi-Platform:** Available on desktop and mobile—built with C++, Dart, and Flutter for performance and clean UI.
 - **Summary & Reports:** Get clear breakdowns of who owes what, and export summaries to share with your group.
 - **Offline Support:** Record expenses anywhere, even without an internet connection.
 - **Privacy First:** All your trip data stays on your device unless you choose to share.
@@ -16,7 +16,7 @@ Tally is a powerful, cross-platform trip expense tracker designed to make group 
 - **C++ / C:** Core logic and performance-sensitive modules.
 - **CMake:** Modern, modular build system.
 - **Dart:** Cross-platform UI and logic.
-- **Swift:** Native integration for Apple platforms.
+- **Flutter:** Native integration for Android platforms.
 - **HTML:** For documentation and lightweight web views.
 
 ## Quick Start
