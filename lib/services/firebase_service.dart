@@ -7,6 +7,7 @@ class FirebaseService {
   FirebaseService._internal();
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FirebaseFirestore get firestore => _firestore;
   final String _groupsCollection = 'groups';
 
   Future<String> addGroup(Group group) async {
@@ -50,5 +51,17 @@ class FirebaseService {
             'location':group.location,
             'numberOfPeople':group.numberOfPeople,
           });
+  }
+
+  Future<void> addUserToGroup(String groupId, String userId) async {
+    await _firestore.collection(_groupsCollection).doc(groupId).update({
+      'members':FieldValue.arrayUnion([userId])
+    });
+  }
+
+  Future<void> removeUserFromGroup(String groupId, String userId) async {
+    await _firestore.collection(_groupsCollection).doc(groupId).update({
+      'members':FieldValue.arrayRemove([userId])
+    });
   }
 }
