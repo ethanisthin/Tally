@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:trip_expense_tracker/services/authentication_service.dart';
 import 'package:trip_expense_tracker/services/firebase_service.dart';
@@ -20,17 +21,35 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _groupsFuture = _firebaseService.getAllGroups();
+    _loadUserGroups();
+  }
+  
+  void _loadUserGroups() {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      _groupsFuture = _firebaseService.getUserGroups(currentUser.uid);
+    } else {
+      _groupsFuture = Future.value([]);
+    }
   }
 
   Future<void> _refreshGroups() async {
     setState(() {
-      _groupsFuture = _firebaseService.getAllGroups();
+      _loadUserGroups();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text('You must be logged in to view this screen'),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
@@ -68,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
           }
           final groups = snapshot.data ?? [];
           if (groups.isEmpty) {
-            return const Center(child: Text('No groups found. Tap + to create one.'));
+            return const Center(child: Text('No trips found. Tap + to create one.'));
           }
           return RefreshIndicator(
             onRefresh: _refreshGroups,
