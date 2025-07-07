@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trip_expense_tracker/screens/create_purchase_screen.dart';
 import '../models/group.dart';
 import '../services/firebase_service.dart';
 
@@ -13,6 +14,16 @@ class GroupDetailsScreen extends StatefulWidget {
 class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   late Group group;
   final FirebaseService _firebaseService = FirebaseService();
+
+  Future<Map<String, String>> _getUserNames(List<String> userIds) async {
+    final usersCollection = FirebaseService().firestore.collection('users');
+    final names = <String, String>{};
+    for (final id in userIds){
+      final doc = await usersCollection.doc(id).get();
+      names[id] = doc.data()?['name'] ?? id;
+    }
+    return names;
+  }
 
   @override
   void initState() {
@@ -63,7 +74,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     }
   }
 
-   Future<void> _addMemberNameDialog(BuildContext context) async {
+  Future<void> _addMemberNameDialog(BuildContext context) async {
     final controller = TextEditingController();
     String? errorText;
 
@@ -97,7 +108,6 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                     setState(() => errorText = 'Please enter a name');
                     return;
                   }
-                  // Query Firestore for user by name
                   final userQuery = await _firebaseService.firestore
                       .collection('users')
                       .where('name', isEqualTo: name)
@@ -124,7 +134,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     );
   }
 
-   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -133,6 +143,13 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () => _editGroup(context),
+          ),
+          IconButton(
+            icon: const Icon(Icons.add_shopping_cart),
+            tooltip: 'Add Purchase',
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => CreatePurchaseScreen(group: group)));
+            },
           ),
         ],
       ),
@@ -147,26 +164,111 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             const SizedBox(height: 16),
             const Text('Members: ', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Expanded(
-              child: ListView.builder(
-                itemCount: group.members.length,
+
+
+            const Text('Purchases:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            FutureBuilder<List<Map<String, dynamic>>>(
+            future: _firebaseService.getGroupPurchases(group.id),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Text('No purchases yet.');
+              }
+              final purchases = snapshot.data!;
+              return ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: purchases.length,
                 itemBuilder: (context, index) {
-                  final memberId = group.members[index];
-                  return ListTile(
-                    title: Text(memberId),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.remove_circle),
-                      onPressed: () async {
-                        await _firebaseService.removeUserFromGroup(group.id, memberId);
-                        setState(() {
-                          group.members.removeAt(index);
-                          group = group.copyWith(members: List.from(group.members));
-                        });
-                      },
-                    ),
-                  );
+                  final purchase = purchases[index];
+                  final payeeIds = List<String>.from(purchase['payees'] ?? []);
+                  return FutureBuilder<Map<String, String>>(future: _getUserNames(payeeIds), 
+                  builder: (context, snapshot) {
+                    final payeeNames = snapshot.data?.values.join(', ') ?? payeeIds.join(', ');
+                    return ListTile(
+                          title: Text(purchase['name'] ?? 'Unnamed'),
+                          subtitle: Text('Payees: $payeeNames'),
+                          trailing: Text(purchase['splitMethod'] ?? ''),
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text(purchase['name'] ?? 'Purchase Details'),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Split Method: ${purchase['splitMethod'] ?? ''}'),
+                                    const SizedBox(height: 8),
+                                    Text('Payees: $payeeNames'),
+                                    const SizedBox(height: 8),
+                                    if (purchase['amounts'] != null)
+                                    ...((purchase['amounts'] as Map<String, dynamic>).entries.map((e) {
+                                      final amount = (e.value is num) ? (e.value as num).toStringAsFixed(2) : e.value.toString();
+                                      return Text('${snapshot.data?[e.key] ?? e.key}: \$$amount');
+                                    })),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Close'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () async {
+                                      final purchaseId = purchase['id'] ?? '';
+                                      if (purchaseId.isNotEmpty) {
+                                        await _firebaseService.deletePurchase(group.id, purchaseId);
+                                        Navigator.pop(context); 
+                                        setState(() {});
+                                      }
+                                    },
+                                    child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                  },
+                );
+                  
                 },
-              ),
+              );
+            },
+          ),
+            const SizedBox(height: 16),
+            FutureBuilder<Map<String, String>>(
+              future: _getUserNames(group.members),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const CircularProgressIndicator();
+                final memberNames = snapshot.data!;
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: group.members.length,
+                  itemBuilder: (context, index) {
+                    final memberId = group.members[index];
+                    final name = memberNames[memberId] ?? memberId;
+                    return ListTile(
+                      title: Text(name),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.remove_circle),
+                        onPressed: () async {
+                          await _firebaseService.removeUserFromGroup(group.id, memberId);
+                          setState(() {
+                            group.members.removeAt(index);
+                            group = group.copyWith(members: List.from(group.members));
+                          });
+                        },
+                      ),
+                    );
+                  },
+                );
+              },
             ),
             const SizedBox(height: 8),
             Center(
