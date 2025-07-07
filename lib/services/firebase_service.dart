@@ -84,15 +84,15 @@ class FirebaseService {
 
 
 
-  Future<List<Map<String, dynamic>>> getGroupPurchases(String groupId) async {
-    final snapshot = await firestore
+  Stream<List<Map<String, dynamic>>> getGroupPurchasesStream(String groupId) {
+    return firestore
         .collection('groups')
         .doc(groupId)
         .collection('purchases')
-        .get();
-    return snapshot.docs
-        .map((doc) => {'id': doc.id, ...doc.data()})
-        .toList();
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) =>
+            snapshot.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList());
 }
 
   Future<void> deletePurchase(String groupId, String purchaseId) async {
@@ -103,4 +103,13 @@ class FirebaseService {
       .doc(purchaseId)
       .delete();
   }
+
+
+Stream<List<String>> getGroupMembersStream(String groupId) {
+  return firestore
+      .collection('groups')
+      .doc(groupId)
+      .snapshots()
+      .map((doc) => List<String>.from(doc.data()?['members'] ?? []));
+}
 }
