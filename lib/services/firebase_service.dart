@@ -64,4 +64,43 @@ class FirebaseService {
       'members':FieldValue.arrayRemove([userId])
     });
   }
+
+
+  Future<void> addPurchaseToGroup({
+    required String groupId,
+    required String name,
+    required List<String> payees,
+    required Map<String, double> amounts,
+    required String splitMethod,
+  }) async {
+    await firestore.collection('groups').doc(groupId).collection('purchases').add({
+      'name':name,
+      'payees':payees,
+      'amounts':amounts,
+      'splitMethod':splitMethod,
+      'createdAt':FieldValue.serverTimestamp(),
+    });
+  }
+
+
+
+  Future<List<Map<String, dynamic>>> getGroupPurchases(String groupId) async {
+    final snapshot = await firestore
+        .collection('groups')
+        .doc(groupId)
+        .collection('purchases')
+        .get();
+    return snapshot.docs
+        .map((doc) => {'id': doc.id, ...doc.data()})
+        .toList();
+}
+
+  Future<void> deletePurchase(String groupId, String purchaseId) async {
+    await firestore
+      .collection('groups')
+      .doc(groupId)
+      .collection('purchases')
+      .doc(purchaseId)
+      .delete();
+  }
 }
