@@ -166,10 +166,45 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             const SizedBox(height: 8),
 
 
+
+            const SizedBox(height: 16),
+            FutureBuilder<Map<String, String>>(
+              future: _getUserNames(group.members),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final memberNames = snapshot.data!;
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: group.members.length,
+                  itemBuilder: (context, index) {
+                    final memberId = group.members[index];
+                    final name = memberNames[memberId];
+                    return ListTile(
+                      title: Text(name ?? 'Loading...'),
+                    );
+                  },
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+            Center(
+              child: ElevatedButton(
+                onPressed: () => _addMemberNameDialog(context),
+                child: const Text('Add Member'),
+              ),
+            ),
+
+
             const Text('Purchases:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            FutureBuilder<List<Map<String, dynamic>>>(
-            future: _firebaseService.getGroupPurchases(group.id),
+
+            const SizedBox(height: 16),
+          
+            StreamBuilder<List<Map<String, dynamic>>>(
+            stream: _firebaseService.getGroupPurchasesStream(group.id),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -187,7 +222,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   final payeeIds = List<String>.from(purchase['payees'] ?? []);
                   return FutureBuilder<Map<String, String>>(future: _getUserNames(payeeIds), 
                   builder: (context, snapshot) {
-                    final payeeNames = snapshot.data?.values.join(', ') ?? payeeIds.join(', ');
+                    final payeeNames = snapshot.hasData
+                    ? snapshot.data!.values.join(', ')
+                    : List.filled(payeeIds.length, '...').join(', ');
                     return ListTile(
                           title: Text(purchase['name'] ?? 'Unnamed'),
                           subtitle: Text('Payees: $payeeNames'),
@@ -240,43 +277,13 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               );
             },
           ),
-            const SizedBox(height: 16),
-            FutureBuilder<Map<String, String>>(
-              future: _getUserNames(group.members),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) return const CircularProgressIndicator();
-                final memberNames = snapshot.data!;
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: group.members.length,
-                  itemBuilder: (context, index) {
-                    final memberId = group.members[index];
-                    final name = memberNames[memberId] ?? memberId;
-                    return ListTile(
-                      title: Text(name),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.remove_circle),
-                        onPressed: () async {
-                          await _firebaseService.removeUserFromGroup(group.id, memberId);
-                          setState(() {
-                            group.members.removeAt(index);
-                            group = group.copyWith(members: List.from(group.members));
-                          });
-                        },
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-            const SizedBox(height: 8),
-            Center(
-              child: ElevatedButton(
-                onPressed: () => _addMemberNameDialog(context),
-                child: const Text('Add Member'),
-              ),
-            ),
+
+
+
+
+
+
+            
           ],
         ),
       ),
