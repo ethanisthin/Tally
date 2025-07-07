@@ -222,7 +222,16 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                         return ListTile(
                           title: Text(purchase['name'] ?? 'Unnamed'),
                           subtitle: Text('Payees: $payeeNames'),
-                          trailing: Text(purchase['splitMethod'] ?? ''),
+                          trailing: Text(
+                            (() {
+                              final amounts = purchase['amounts'] as Map<String, dynamic>?;
+                              if (amounts == null) return '';
+                              final total = amounts.values
+                                  .map((v) => v is num ? v.toDouble() : 0.0)
+                                  .fold(0.0, (a, b) => a + b);
+                              return '\$${total.toStringAsFixed(2)}';
+                            })(),
+                          ),
                           onTap: () {
                             showDialog(
                               context: context,
