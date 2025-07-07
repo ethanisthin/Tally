@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/group.dart';
 import '../services/firebase_service.dart';
 
@@ -32,14 +33,19 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
       });
 
       try {
+        final currentUser = FirebaseAuth.instance.currentUser;
+        if (currentUser == null) {
+          throw Exception('User not logged in');
+        }
+
         final group = Group(
-          id: '', 
+          id: '',
           name: _nameController.text.trim(),
           location: _locationController.text.trim(),
           numberOfPeople: int.parse(_numberOfPeopleController.text),
           createdAt: DateTime.now(),
-          createdBy: 'current_user_id',
-          members: [],
+          createdBy: currentUser.uid,
+          members: [currentUser.uid],
         );
 
         final groupId = await _firebaseService.addGroup(group);
@@ -78,7 +84,6 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create Group'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -150,11 +155,6 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
               const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: _isLoading ? null : _createGroup,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: Colors.deepPurple,
-                  foregroundColor: Colors.white,
-                ),
                 child: _isLoading
                     ? const CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
