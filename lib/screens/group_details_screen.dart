@@ -18,7 +18,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   Future<Map<String, String>> _getUserNames(List<String> userIds) async {
     final usersCollection = FirebaseService().firestore.collection('users');
     final names = <String, String>{};
-    for (final id in userIds){
+    for (final id in userIds) {
       final doc = await usersCollection.doc(id).get();
       names[id] = doc.data()?['name'] ?? id;
     }
@@ -164,9 +164,6 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             const SizedBox(height: 16),
             const Text('Members: ', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-
-
-
             const SizedBox(height: 16),
             FutureBuilder<Map<String, String>>(
               future: _getUserNames(group.members),
@@ -196,36 +193,33 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 child: const Text('Add Member'),
               ),
             ),
-
-
             const Text('Purchases:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-
             const SizedBox(height: 16),
-          
             StreamBuilder<List<Map<String, dynamic>>>(
-            stream: _firebaseService.getGroupPurchasesStream(group.id),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Text('No purchases yet.');
-              }
-              final purchases = snapshot.data!;
-              return ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: purchases.length,
-                itemBuilder: (context, index) {
-                  final purchase = purchases[index];
-                  final payeeIds = List<String>.from(purchase['payees'] ?? []);
-                  return FutureBuilder<Map<String, String>>(future: _getUserNames(payeeIds), 
-                  builder: (context, snapshot) {
-                    final payeeNames = snapshot.hasData
-                    ? snapshot.data!.values.join(', ')
-                    : List.filled(payeeIds.length, '...').join(', ');
-                    return ListTile(
+              stream: _firebaseService.getGroupPurchasesStream(group.id),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Text('No purchases yet.');
+                }
+                final purchases = snapshot.data!;
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: purchases.length,
+                  itemBuilder: (context, index) {
+                    final purchase = purchases[index];
+                    final payeeIds = List<String>.from(purchase['payees'] ?? []);
+                    return FutureBuilder<Map<String, String>>(
+                      future: _getUserNames(payeeIds),
+                      builder: (context, snapshot) {
+                        final payeeNames = snapshot.hasData
+                            ? snapshot.data!.values.join(', ')
+                            : List.filled(payeeIds.length, '...').join(', ');
+                        return ListTile(
                           title: Text(purchase['name'] ?? 'Unnamed'),
                           subtitle: Text('Payees: $payeeNames'),
                           trailing: Text(purchase['splitMethod'] ?? ''),
@@ -243,16 +237,31 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                                     Text('Payees: $payeeNames'),
                                     const SizedBox(height: 8),
                                     if (purchase['amounts'] != null)
-                                    ...((purchase['amounts'] as Map<String, dynamic>).entries.map((e) {
-                                      final amount = (e.value is num) ? (e.value as num).toStringAsFixed(2) : e.value.toString();
-                                      return Text('${snapshot.data?[e.key] ?? e.key}: \$$amount');
-                                    })),
+                                      ...((purchase['amounts'] as Map<String, dynamic>).entries.map((e) {
+                                        final amount = (e.value is num) ? (e.value as num).toStringAsFixed(2) : e.value.toString();
+                                        return Text('${snapshot.data?[e.key] ?? e.key}: \$$amount');
+                                      })),
                                   ],
                                 ),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(context),
                                     child: const Text('Close'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => CreatePurchaseScreen(
+                                            group: group,
+                                            purchase: purchase,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text('Edit'),
                                   ),
                                   TextButton(
                                     onPressed: () async {
@@ -270,20 +279,12 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                             );
                           },
                         );
+                      },
+                    );
                   },
                 );
-                  
-                },
-              );
-            },
-          ),
-
-
-
-
-
-
-            
+              },
+            ),
           ],
         ),
       ),
