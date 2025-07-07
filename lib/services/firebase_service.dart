@@ -73,15 +73,16 @@ class FirebaseService {
     required Map<String, double> amounts,
     required String splitMethod,
   }) async {
+    final payment_status = {for (var payee in payees) payee:false};
     await firestore.collection('groups').doc(groupId).collection('purchases').add({
       'name':name,
       'payees':payees,
       'amounts':amounts,
       'splitMethod':splitMethod,
       'createdAt':FieldValue.serverTimestamp(),
+      'paymentStatus': payment_status,
     });
   }
-
 
 
   Stream<List<Map<String, dynamic>>> getGroupPurchasesStream(String groupId) {
@@ -93,6 +94,16 @@ class FirebaseService {
         .snapshots()
         .map((snapshot) =>
             snapshot.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList());
+}
+
+  Future<List<Map<String, dynamic>>> getGroupPurchases(String groupId) async {
+  final snapshot = await firestore
+      .collection('groups')
+      .doc(groupId)
+      .collection('purchases')
+      .orderBy('createdAt', descending: true)
+      .get();
+  return snapshot.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList();
 }
 
   Future<void> deletePurchase(String groupId, String purchaseId) async {
@@ -134,6 +145,21 @@ class FirebaseService {
     'updatedAt': FieldValue.serverTimestamp(),
   });
 }
+
+
+  Future<void> userPaymentStatus(
+    String groupId,
+    String purchaseId,
+    String userId,
+    bool isPaid
+  ) async {
+    await firestore
+    .collection('groups')
+    .doc(groupId)
+    .collection('purchases')
+    .doc(purchaseId)
+    .update({'paymentStatus.$userId':isPaid,});
+  }
 
 
 }
