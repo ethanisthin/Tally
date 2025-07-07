@@ -105,11 +105,35 @@ class FirebaseService {
   }
 
 
-Stream<List<String>> getGroupMembersStream(String groupId) {
-  return firestore
+  Stream<List<String>> getGroupMembersStream(String groupId) {
+    return firestore
+        .collection('groups')
+        .doc(groupId)
+        .snapshots()
+        .map((doc) => List<String>.from(doc.data()?['members'] ?? []));
+  }
+
+  Future<void> updatePurchase({
+  required String groupId,
+  required String purchaseId,
+  required String name,
+  required List<String> payees,
+  required Map<String, double> amounts,
+  required String splitMethod,
+}) async {
+  await firestore
       .collection('groups')
       .doc(groupId)
-      .snapshots()
-      .map((doc) => List<String>.from(doc.data()?['members'] ?? []));
+      .collection('purchases')
+      .doc(purchaseId)
+      .update({
+    'name': name,
+    'payees': payees,
+    'amounts': amounts,
+    'splitMethod': splitMethod,
+    'updatedAt': FieldValue.serverTimestamp(),
+  });
 }
+
+
 }
