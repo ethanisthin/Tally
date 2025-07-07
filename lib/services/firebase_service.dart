@@ -162,4 +162,53 @@ class FirebaseService {
   }
 
 
+  Future<List<Group>> getUserGroups(String userId) async {
+  try {
+    final memberQuery = await _firestore
+        .collection(_groupsCollection)
+        .where('members', arrayContains: userId)
+        .get();
+
+    final creatorQuery = await _firestore
+        .collection(_groupsCollection)
+        .where('createdBy', isEqualTo: userId)
+        .get();
+
+    final allDocs = [
+      ...memberQuery.docs,
+      ...creatorQuery.docs.where((doc) => !memberQuery.docs.any((d) => d.id == doc.id))
+    ];
+
+    return allDocs.map((doc) => Group.fromMap(doc.data(), doc.id)).toList();
+  } catch (e) {
+    throw Exception('Failed to get user groups: $e');
+  }
+}
+
+  Stream<List<Group>> getUserGroupsStream(String userId) {
+    final memberStream = _firestore
+        .collection(_groupsCollection)
+        .where('members', arrayContains: userId)
+        .snapshots()
+        .map((snapshot) => snapshot.docs);
+        
+    final creatorStream = _firestore
+        .collection(_groupsCollection)
+        .where('createdBy', isEqualTo: userId)
+        .snapshots()
+        .map((snapshot) => snapshot.docs);
+        
+    return Stream.periodic(const Duration(milliseconds: 100)).asyncMap((_) async {
+      final memberDocs = await memberStream.first;
+      final creatorDocs = await creatorStream.first;
+      
+      final allDocs = [
+        ...memberDocs,
+        ...creatorDocs.where((doc) => !memberDocs.any((d) => d.id == doc.id))
+      ];
+      
+      return allDocs.map((doc) => Group.fromMap(doc.data(), doc.id)).toList();
+    });
+  }
+
 }
