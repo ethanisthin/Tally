@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:trip_expense_tracker/screens/create_purchase_screen.dart';
+import 'package:tally/screens/create_purchase_screen.dart';
 import '../models/group.dart';
 import '../services/firebase_service.dart';
 
@@ -146,28 +146,28 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   Future<Map<String, Map<String, dynamic>>> _calculateFinancialSummary() async {
     final purchases = await _firebaseService.getGroupPurchases(group.id);
     final summary = <String, Map<String, dynamic>>{};
-    
+
     for (final purchase in purchases) {
       final payees = List<String>.from(purchase['payees'] ?? []);
       final amounts = purchase['amounts'] as Map<String, dynamic>?;
       final paymentStatus = purchase['paymentStatus'] as Map<String, dynamic>?;
-      
+
       if (amounts != null) {
         for (final userId in payees) {
           if (!summary.containsKey(userId)) {
             summary[userId] = {'totalOwed': 0.0, 'totalPaid': 0.0};
           }
-          
+
           final amount = amounts[userId] is num ? (amounts[userId] as num).toDouble() : 0.0;
           summary[userId]!['totalOwed'] = (summary[userId]!['totalOwed'] as double) + amount;
-          
+
           if (paymentStatus != null && paymentStatus[userId] == true) {
             summary[userId]!['totalPaid'] = (summary[userId]!['totalPaid'] as double) + amount;
           }
         }
       }
     }
-    
+
     return summary;
   }
 
@@ -199,8 +199,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             const SizedBox(height: 8),
             Text('People: ${group.numberOfPeople}', style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 16),
-            
-          
+
+
             Card(
               elevation: 2,
               child: Padding(
@@ -208,7 +208,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Financial Summary', 
+                    const Text('Financial Summary',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     StreamBuilder<List<Map<String, dynamic>>>(
@@ -276,7 +276,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
             const Text('Members: ', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
@@ -349,7 +349,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                                     children: payeeIds.map((userId) {
                                       final isPaid = paymentStatus[userId] == true;
                                       final userName = snapshot.data?[userId] ?? userId.substring(0, 4);
-                                      
+
                                       return Chip(
                                         avatar: Icon(
                                           isPaid ? Icons.check_circle : Icons.pending,
@@ -357,8 +357,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                                           size: 18,
                                         ),
                                         label: Text(userName),
-                                        backgroundColor: isPaid 
-                                          ? Colors.green.withOpacity(0.1) 
+                                        backgroundColor: isPaid
+                                          ? Colors.green.withOpacity(0.1)
                                           : Colors.orange.withOpacity(0.1),
                                         labelStyle: TextStyle(
                                           color: isPaid ? Colors.green.shade800 : Colors.orange.shade800,
@@ -395,25 +395,25 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                                           children: [
                                             Text('Split Method: ${purchase['splitMethod'] ?? ''}'),
                                             const SizedBox(height: 16),
-                                            const Text('Payees & Payment Status:', 
+                                            const Text('Payees & Payment Status:',
                                               style: TextStyle(fontWeight: FontWeight.bold)),
                                             const SizedBox(height: 8),
-                                            
-                                            
+
+
                                             ...payeeIds.map((userId) {
                                               final paymentStatus = (purchase['paymentStatus'] as Map<String, dynamic>?) ?? {};
                                               final isPaid = paymentStatus[userId] == true;
                                               final userName = snapshot.data?[userId] ?? '...';
                                               final amount = purchase['amounts']?[userId];
-                                              final amountStr = amount is num 
-                                                ? '\$${amount.toStringAsFixed(2)}' 
+                                              final amountStr = amount is num
+                                                ? '\$${amount.toStringAsFixed(2)}'
                                                 : '';
-                                              
+
                                               return Container(
                                                 margin: const EdgeInsets.only(bottom: 8),
                                                 decoration: BoxDecoration(
-                                                  color: isPaid 
-                                                    ? Colors.green.withOpacity(0.1) 
+                                                  color: isPaid
+                                                    ? Colors.green.withOpacity(0.1)
                                                     : Colors.orange.withOpacity(0.1),
                                                   borderRadius: BorderRadius.circular(8),
                                                 ),
@@ -430,8 +430,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                                                     activeColor: Colors.green,
                                                     onChanged: (newValue) async {
                                                       await _updatePaymentStatus(
-                                                        purchase['id'], 
-                                                        userId, 
+                                                        purchase['id'],
+                                                        userId,
                                                         newValue
                                                       );
                                                       setState(() {
@@ -442,14 +442,14 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                                                 ),
                                               );
                                             }).toList(),
-                                            
+
                                             const Divider(height: 24),
-                                            
-                                            
+
+
                                             Row(
                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               children: [
-                                                const Text('Total:', 
+                                                const Text('Total:',
                                                   style: TextStyle(fontWeight: FontWeight.bold)),
                                                 Text(
                                                   (() {

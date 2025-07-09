@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:trip_expense_tracker/services/authentication_service.dart';
-import 'package:trip_expense_tracker/services/firebase_service.dart';
+import 'package:tally/services/authentication_service.dart';
+import 'package:tally/services/firebase_service.dart';
 import '../models/group.dart';
 import 'user_profile_screen.dart';
 import 'create_group_screen.dart';
@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _loadUserGroups();
   }
-  
+
   void _loadUserGroups() {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
