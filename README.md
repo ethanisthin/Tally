@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/4301fef8-2028-4f80-9517-599e16198a17" alt="Tally" height = "250" width="250">
+  <img src="https://github.com/user-attachments/assets/82dba2ee-d68c-452b-b408-a8871ae9ae8d" alt="Tally" height = "250" width="250">
 </div>
 
 # Tally
